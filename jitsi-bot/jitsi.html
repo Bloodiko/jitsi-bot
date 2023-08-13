@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <script>
+    let bot_started = false
+    let roomInput = undefined
+  </script>
+  <script src="jquery.min.js"></script>
+  <!-- <script src="lib-jitsi-meet.min.js"></script> -->
+  <script src="https://meet.jit.si/libs/lib-jitsi-meet.min.js"></script>
+  <script src="conferenceInit.js"></script>
+  <title>Jitsi Bot</title>
+  <meta charset="UTF-8" />
+</head>
+
+<body>
+  <header>Jitsi Bots:</header>
+  <select name="meetingSelector" id="meetingSelector">
+    Select Meeting
+    <option value="hardcodedroomsgohere">frequently used conferences can be hardcoded</option>
+    <option value="test">Test</option>
+    <option value="idleroom">Idleroom</option>
+    <option value="custom">Andere Option, unten eintragen</option>
+  </select>
+  <br />
+  <label for="customRoomInput">Anderer Raum: </label>
+  <input type="text" id="customRoomInput" />
+
+  <br />
+
+  <button id="start_bot_button" onclick="openBot()">Start Bot.</button>
+</body>
+
+</html>
