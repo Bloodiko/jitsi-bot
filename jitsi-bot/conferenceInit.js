@@ -3,30 +3,52 @@ let room = null
 let isJoined = false
 let roomName = ''
 
+let bot_started = false
+let roomInput = undefined
+
 let breakout = null
-
-const connOptions = {
-  serviceUrl: 'wss://meet.jit.si/xmpp-websocket?room=roomname',
-  hosts: {
-    domain: 'meet.jit.si',
-    muc: 'muc.meet.jit.si',
-  },
-  bosh: '/http-bind',
-  websocket: 'wss://meet.jit.si/xmpp-websocket',
-  websocketKeepAliveUrl: 'https://meet.jit.si/_unlock',
-}
-
-const confOptions = {}
 
 JitsiMeetJS.setLogLevel(JitsiMeetJS.logLevels.LOG)
 
 JitsiMeetJS.init()
 
-
-
 const roomIDs = {
   test: 'ColouredSpicesExperienceLong',
 }
+
+const confOptions = {}
+
+const connOptions =
+  //connection options
+  {
+    hosts: {
+      domain: 'meet.jit.si',
+      muc: 'muc.meet.jit.si',
+    },
+    focusUserJid: 'focus@auth.meet.jit.si',
+    bosh: '/http-bind',
+    websocket: 'wss://meet.jit.si/xmpp-websocket',
+    constraints: {
+      video: {
+        height: {
+          ideal: 720,
+          max: 720,
+          min: 180,
+        },
+        width: {
+          ideal: 1280,
+          max: 1280,
+          min: 320,
+        },
+      },
+    },
+    //whiteboard: {
+    //   enabled: true,
+    //   collabServerBaseUrl: '',
+    //},
+    //useTurnUdp: true,
+    serviceUrl: 'wss://meet.jit.si/xmpp-websocket?room=roomname',
+  }
 
 let bannedUsers = []
 let bannedStatUsers = []
@@ -34,6 +56,18 @@ let bannedStatUsers = []
 let quitConferenceTimeout = undefined
 
 let moderatorWhitelist = new Set()
+
+const breakoutBaseName = 'Breakout-Raum #'
+
+const logElement = document.querySelector('#log')
+
+const log = (message) => {
+  if (!logElement) {
+    return
+  }
+  logElement.textContent += '\n' + message
+  console.log(message)
+}
 
 function getStatUserByName(displayNameNormalized) {
   const statUserObj = room.getParticipants().find((user) => {
@@ -124,7 +158,7 @@ const grantAdmin = (userId, argument) => {
 
   let user = room.getParticipantById(userId)
   if (!moderatorWhitelist.has(user.getStatsID())) {
-    moderatorWhitelist.push(user.getStatsID())
+    moderatorWhitelist.add(user.getStatsID())
     saveAdminIDs()
     room.sendPrivateTextMessage(
       userId,
@@ -141,7 +175,7 @@ const reloadBot = (userId) => {
 
 const muteAll = (userId) => {
   room.getParticipants().forEach((user) => {
-    console.log('Muting', user._displayName)
+    log('Muting ' + user._displayName)
     room.muteParticipant(user._id)
   })
 }
@@ -167,8 +201,7 @@ const ban = (userId, argument) => {
   console.log(displayNameNormalized)
   console.log(statUserName)
 
-  if (!room.participants[userId].isModerator()) {
-    // in newer lib version use .get(), as participant is being changed from Object to Map
+  if (!room.getParticipantById(userId).isModerator()) {
     room.sendPrivateTextMessage(userId, 'You are not allowed to ban a Person.')
     return
   }
@@ -204,8 +237,7 @@ const unban = (userId, argument) => {
   console.log(displayNameNormalized)
   console.log(statUserName)
 
-  if (!room.participants[userId].isModerator()) {
-    // see l:171
+  if (!room.getParticipantById(userId).isModerator()) {
     room.sendPrivateTextMessage(
       userId,
       'You are not allowed to unban a Person.'
@@ -255,15 +287,15 @@ const quitConferenceAfterTimeout = (userId, timeout) => {
   }
 
   const endConference = () => {
-    room.end()
+    room.end() // room 1 is "Conference Object", room 2 is "Room Object"
   }
 
   const sendTimeoutWarning = (isLast) => {
     remainingTime = Math.floor(remainingTime / interval)
     room.sendTextMessage(
-      'Der Raum wird in',
-      Math.floor(remainingTime / 60 / 1000),
-      'Minuten geschlossen.'
+      'Der Raum wird in ' +
+        Math.floor(remainingTime / 60 / 1000) +
+        ' Minuten geschlossen.'
     )
 
     if (isLast) {
@@ -281,7 +313,7 @@ const quitConferenceAfterTimeout = (userId, timeout) => {
     )
   }
 
-  room.sendTextMessage('Timer Started, you have', timeout, 'minutes.')
+  room.sendTextMessage('Timer Started, you have ' + timeout + ' minutes.')
 
   quitConferenceTimeout = setTimeout(
     sendTimeoutWarning,
@@ -291,8 +323,9 @@ const quitConferenceAfterTimeout = (userId, timeout) => {
 }
 
 const quit = (userId) => {
-  if (room.participants[userId].isModerator()) {
+  if (room.getParticipantById(userId).isModerator()) {
     room.sendTextMessage("I'm leaving, bye.")
+    room.room.doLeave()
     window.close()
   }
 }
@@ -343,7 +376,6 @@ const commandHandler = {
 }
 
 function conferenceInit() {
-  
   con = new JitsiMeetJS.JitsiConnection(null, null, connOptions)
 
   const onConnectionSuccess = (ev) => {
@@ -389,17 +421,20 @@ function conferenceInit() {
   con.connect()
 }
 
+const getNameById = (userId) => {
+  return room.getParticipantById(userId)?._displayName
+}
+
 function needBreakout() {
   console.log('Checking Breakout Rooms. If not 3, create 3.')
   if (!breakout) {
     breakout = room.getBreakoutRooms()
   }
 
-  const breakoutBaseName = 'Breakout-Raum #'
   let breakoutCounter = 0
   const customBreakouts = {
     AFK: false,
-    ChilloutRoom: false,
+    ChilloutLounge: false,
   }
   Object.keys(breakout._rooms).forEach((breakoutRoomId) => {
     console.log(breakoutRoomId, ':', breakout._rooms[breakoutRoomId].name)
@@ -439,10 +474,20 @@ function roomInit(targetRoom) {
     onConferenceJoined
   )
 
+  room.on(JitsiMeetJS.events.conference.MESSAGE_RECEIVED, (userId, message) => {
+    log(
+      'Message received: \n' + (getNameById(userId) || userId) + ': ' + message
+    )
+  })
   room.on(
     JitsiMeetJS.events.conference.PRIVATE_MESSAGE_RECEIVED,
     (userId, message) => {
-      console.log('Private Message recieved: ', userId, ' ', message)
+      log(
+        'Private Message recieved: \n' +
+          (getNameById(userId) || userId) +
+          ': ' +
+          message
+      )
 
       const firstSpaceIndex = message.indexOf(' ')
       function getCommand() {
@@ -466,22 +511,26 @@ function roomInit(targetRoom) {
         commandHandler[command](userId, argument) // Executing corresponding function in commandHandler List.
       } catch (error) {
         if (message.startsWith('/')) {
-          if (message in commandHandler) {
-            room.sendPrivateTextMessage(userId, 'Error executing command.')
+          if (command in commandHandler) {
+            room.sendPrivateTextMessage(
+              userId,
+              'Error while Executing Command.'
+            )
           } else {
             room.sendPrivateTextMessage(userId, 'Command not found. Try /help')
           }
+        } else {
+          room.sendPrivateTextMessage(
+            userId,
+            'I wont talk back, try commands with / like /help.'
+          )
         }
+        console.error(error)
       }
     }
   )
-
-  room.on(JitsiMeetJS.events.conference.MESSAGE_RECEIVED, (userId, message) => {
-    console.log('Message recieved: ', userId, ' ', message)
-  })
-
   room.on(JitsiMeetJS.events.conference.USER_JOINED, (userId, userObj) => {
-    console.log('USER JOINED EVENT ', userId, ': ', userObj._displayName)
+    log('USER JOINED EVENT ' + userId + ': ' + userObj._displayName)
     const displayNameNormalized = userObj._displayName
       .replace(' ', '')
       .toLowerCase()
@@ -491,6 +540,7 @@ function roomInit(targetRoom) {
     ) {
       room.sendPrivateTextMessage(userId, 'You are Banned from this Room.')
       room.kickParticipant(userId, 'You Are Banned!')
+      log('Kick on Join because user is Banned from Room.')
     }
 
     // Add Moderator on Whitelist
@@ -500,7 +550,7 @@ function roomInit(targetRoom) {
   })
 
   room.on(JitsiMeetJS.events.conference.USER_LEFT, (userId, userObj) => {
-    console.log('USER LEFT EVENT ', userId, ': ', userObj._displayName)
+    log('USER LEFT EVENT ' + userId + ': ' + userObj._displayName)
   })
 
   room.on(JitsiMeetJS.events.conference.USER_ROLE_CHANGED, (userId, role) => {
@@ -514,35 +564,34 @@ function roomInit(targetRoom) {
 
       let breakoutStatus = needBreakout()
 
-      if (breakoutStatus.breakoutCounter === 0) {
-        let win = window.open(
-          '/jitsipuppeteer/jitsi_puppeteer.html?room=' + targetRoom,
-          '_blank'
-        )
+      // if (breakoutStatus.breakoutCounter === 0) {
+      //    let win = window.open(
+      //       '/jitsipuppeteer/jitsi_puppeteer.html?room=' + targetRoom,
+      //       '_blank'
+      //    )
 
-        win.addEventListener('message', (event) => {
-          if (event.data === 'initDone') {
-            console.log('Init Done recieved, disposing win.')
-            win.close()
-          }
-        })
-      }
-
-      // Disabled, as not working. - Using Iframe Instead. see need breakout.
-      // while (breakoutCounter < 3) {
-      //   // 3 Breakout Rooms should be there.
-      //   const name = breakoutBaseName + String(breakoutCounter)
-      //   console.log('Create Breakout Room', name)
-      //   breakout.createBreakoutRoom(name)
-      //   breakoutCounter++
+      //    win.addEventListener('message', (event) => {
+      //       if (event.data === 'initDone') {
+      //          console.log('Init Done recieved, disposing win.')
+      //          win.close()
+      //       }
+      //    })
       // }
 
-      // // special Breakouts
-      // Object.keys(customBreakouts).forEach((breakoutName) => {
-      //   if (!customBreakouts[breakoutName]) {
-      //     console.log('Creating Breakout Room', breakoutName)
-      //   }
-      // })
+      while (breakoutStatus.breakoutCounter < 3) {
+        // 3 Breakout Rooms should be there.
+        const name = breakoutBaseName + String(breakoutStatus.breakoutCounter)
+        console.log('Create Breakout Room', name)
+        breakout.createBreakoutRoom(name)
+        breakoutStatus.breakoutCounter++
+      }
+
+      // special Breakouts
+      Object.keys(breakoutStatus.customBreakouts).forEach((breakoutName) => {
+        if (!breakoutStatus.customBreakouts[breakoutName]) {
+          console.log('Creating Breakout Room', breakoutName)
+        }
+      })
     }
   })
 
@@ -599,7 +648,10 @@ function roomInit(targetRoom) {
   const now = new Date()
   const midnight = new Date(now).setHours(24, 0, 0, 0)
 
-  window.dailyReloadTimeout = setTimeout(reloadBot, midnight - now)
+  window.dailyReloadTimeout = setTimeout(() => {
+    room.end()
+    reloadBot
+  }, midnight - now)
   console.log('Delay for reload at Midnight DEBUG: ', midnight - now)
 }
 
@@ -615,15 +667,15 @@ function main() {
   const targetRoom = urlParams.get('room')
 
   if (!targetRoom) {
-    console.log('No room Parameter, not launching bot.')
+    log('No room Parameter, not launching bot.')
     return
   }
 
   document.title = 'Jitsi Bot - ' + targetRoom
 
-  roomName = targetRoom.replace(' ', '').toLowerCase()
+  roomName = targetRoom
 
-  connOptions.serviceUrl = 'wss://meet.jit.si/xmpp-websocket?room=' + roomName;
+  connOptions.serviceUrl = 'wss://meet.jit.si/xmpp-websocket?room=' + roomName
 
   // load White and Banlist
   loadAdminIDs()
@@ -631,8 +683,8 @@ function main() {
 
   conferenceInit()
 
-  console.log('Target: \n' + targetRoom)
-  roomInit(roomName)
+  log('Target: ' + targetRoom)
+  roomInit(targetRoom)
 }
 
 // Open new Tab with selected Bot as Parameter
@@ -667,11 +719,21 @@ function openBot() {
   )
 }
 
+document.querySelector('#start_bot_button')?.addEventListener('click', openBot)
+document
+  .querySelector('#clearLog')
+  ?.addEventListener(
+    'click',
+    () => (document.querySelector('#log').textContent = '')
+  )
+
 let d = new Date()
-console.log(d)
+log(d)
 if (d.getHours == 0 && d.getMinutes() == 0) {
   // delay bot start for a while to give jitsi time to dispose room.
   setTimeout(main, 60000)
 } else {
+  log('Debug: Not Waiting as time check returned false.')
+  log(d.getHours() + ':' + d.getMinutes())
   main()
 }
