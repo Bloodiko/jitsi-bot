@@ -718,7 +718,7 @@ function openBot() {
   }
 
   window.open(
-    '/jitsi-bot/jitsi.html?room=' +
+    '/jitsi-bot/jitsi-bot/jitsi.html?room=' +
       getTargetRoom(isValue, isCustom, customInput),
     '_blank'
   )
