@@ -23,7 +23,7 @@ const connOptions =
   {
     hosts: {
       domain: 'meet.jit.si',
-      muc: 'muc.meet.jit.si',
+      muc: 'conference.meet.jit.si',
     },
     focusUserJid: 'focus@auth.meet.jit.si',
     bosh: '/http-bind',
@@ -453,9 +453,14 @@ function needBreakout() {
   return { breakoutCounter, customBreakouts }
 }
 
-function roomInit(targetRoom) {
+function roomInit() {
+  if (!roomName) {
+    console.log('No Room Name, not launching bot.')
+    return
+  }
+
   if (!isJoined) {
-    setTimeout(roomInit, 1000, targetRoom)
+    setTimeout(roomInit, 1000)
     return
   }
 
@@ -467,7 +472,7 @@ function roomInit(targetRoom) {
     document.querySelector('#start_bot_button').disabled = true
   }
 
-  room = con.initJitsiConference(targetRoom, confOptions)
+  room = con.initJitsiConference(roomName, confOptions)
 
   room.addEventListener(
     JitsiMeetJS.events.conference.CONFERENCE_JOINED,
@@ -566,7 +571,7 @@ function roomInit(targetRoom) {
 
       // if (breakoutStatus.breakoutCounter === 0) {
       //    let win = window.open(
-      //       '/jitsipuppeteer/jitsi_puppeteer.html?room=' + targetRoom,
+      //       '/jitsipuppeteer/jitsi_puppeteer.html?room=' + roomName,
       //       '_blank'
       //    )
 
@@ -673,7 +678,7 @@ function main() {
 
   document.title = 'Jitsi Bot - ' + targetRoom
 
-  roomName = targetRoom
+  roomName = targetRoom.replace(' ', '').toLowerCase()
 
   connOptions.serviceUrl = 'wss://meet.jit.si/xmpp-websocket?room=' + roomName
 
@@ -684,7 +689,7 @@ function main() {
   conferenceInit()
 
   log('Target: ' + targetRoom)
-  roomInit(targetRoom)
+  roomInit()
 }
 
 // Open new Tab with selected Bot as Parameter

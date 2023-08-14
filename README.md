@@ -1,7 +1,5 @@
 # Jitsi Bot
 
-## Currently Not Working! - This is highly experimental!
-
 Repository for my Jitsi Bot.
 
 jitsi.html?room=jitsiroomname
@@ -38,3 +36,7 @@ Future:
 ## Usage
 
 Send a Private Message to the Bot with a command.
+
+![Help Command in Chat][def]
+
+[def]: images/privateMessage_help.png
