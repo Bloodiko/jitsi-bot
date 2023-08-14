@@ -2,7 +2,7 @@
 
 Repository for my Jitsi Bot.
 
-![Bot Selection Screen](https://bloodiko.github.io/jitsi-bot/jitsi.html) ← Click to try it out
+[Bot Selection Site](https://bloodiko.github.io/jitsi-bot/jitsi.html) ← Click to try it out
 
 jitsi.html?room=jitsiroomname
 
@@ -12,10 +12,10 @@ Features:
 - /ban
 - /banlist
 - /unban
-- /muteAll - currently bugged !
+- /muteAll 
 - /admin passwd - grants Moderator
 - /quit - exits bot
-- /reload - realoads bot
+- /reload - reloads bot
 - /timeoutConf [time in minutes] - Forcefully ends the conference for all
   participants after the given time. - Will notify in certain intervals.
 - /setSubject [title] - sets Jitsi Room Name (Top of the screen next to
@@ -24,7 +24,6 @@ Features:
 Future:
 
 - create / rename Breakouts
-- fix mute
 - add soundboard
 
 ## Installation
