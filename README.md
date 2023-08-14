@@ -2,7 +2,7 @@
 
 Repository for my Jitsi Bot.
 
-![Bot Selection Screen](/jitsi-bot/jitsi.html) ← Click to try it out
+![Bot Selection Screen](https://bloodiko.github.io/jitsi-bot/jitsi.html) ← Click to try it out
 
 jitsi.html?room=jitsiroomname
 
