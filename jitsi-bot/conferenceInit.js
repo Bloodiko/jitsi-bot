@@ -162,7 +162,7 @@ const grantAdmin = (userId, argument) => {
     saveAdminIDs()
     room.sendPrivateTextMessage(
       userId,
-      "You've been added to the persistant Whitelist and will be granted moderator Automatically."
+      "You've been added to the persistant whitelist and will be granted moderator automatically on your next join."
     )
   }
 }
@@ -293,14 +293,14 @@ const quitConferenceAfterTimeout = (userId, timeout) => {
   const sendTimeoutWarning = (isLast) => {
     remainingTime = Math.floor(remainingTime / interval)
     room.sendTextMessage(
-      'Der Raum wird in ' +
+      'The room will be closed in ' +
         Math.floor(remainingTime / 60 / 1000) +
-        ' Minuten geschlossen.'
+        ' minutes.'
     )
 
     if (isLast) {
       room.sendTextMessage(
-        'Dies ist der Letzte Reminder. Der Raum wird in Kürze geschlossen.'
+        'This is the last reminder. The room will be closed soon.'
       )
       quitConferenceTimeout = setTimeout(endConference, remainingTime)
       return
@@ -545,7 +545,7 @@ function roomInit() {
     ) {
       room.sendPrivateTextMessage(userId, 'You are Banned from this Room.')
       room.kickParticipant(userId, 'You Are Banned!')
-      log('Kick on Join because user is Banned from Room.')
+      log('Kicked user on join because user is banned from this room.')
     }
 
     // Add Moderator on Whitelist
