@@ -48,6 +48,7 @@ const connOptions =
     //},
     //useTurnUdp: true,
     serviceUrl: 'wss://meet.jit.si/xmpp-websocket?room=roomname',
+    websocketKeepAliveUrl: 'https://meet.jit.si/_unlock?room=roomname',
   }
 
 let bannedUsers = []
@@ -674,6 +675,8 @@ function main() {
   roomName = targetRoom.replace(' ', '').toLowerCase()
 
   connOptions.serviceUrl = 'wss://meet.jit.si/xmpp-websocket?room=' + roomName
+  connOptions.websocketKeepAliveUrl =
+    'https://meet.jit.si/_unlock?room=' + roomName
 
   // load White and Banlist
   loadAdminIDs()
