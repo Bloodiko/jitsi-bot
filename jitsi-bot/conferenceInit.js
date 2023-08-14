@@ -453,6 +453,31 @@ function needBreakout() {
   return { breakoutCounter, customBreakouts }
 }
 
+function checkBreakout() {
+  if (!isJoined) {
+    setTimeout(checkBreakout, 3000)
+    return
+  }
+
+  let breakoutStatus = needBreakout()
+
+  while (breakoutStatus.breakoutCounter < 3) {
+    // 3 Breakout Rooms should be there.
+    const name = breakoutBaseName + String(breakoutStatus.breakoutCounter)
+    console.log('Create Breakout Room', name)
+    breakout.createBreakoutRoom(name)
+    breakoutStatus.breakoutCounter++
+  }
+
+  // special Breakouts
+  Object.keys(breakoutStatus.customBreakouts).forEach((breakoutName) => {
+    if (!breakoutStatus.customBreakouts[breakoutName]) {
+      console.log('Creating Breakout Room', breakoutName)
+      breakout.createBreakoutRoom(breakoutName)
+    }
+  })
+}
+
 function roomInit() {
   if (!roomName) {
     console.log('No Room Name, not launching bot.')
@@ -564,40 +589,8 @@ function roomInit() {
       room.sendTextMessage('Thank you for granting me Moderator')
       console.log('Setting Start muted Policy.')
       room.setStartMutedPolicy({ audio: false, video: true })
-
-      // Load I-Frame temporary if needBreakout and dispose later
-
-      let breakoutStatus = needBreakout()
-
-      // if (breakoutStatus.breakoutCounter === 0) {
-      //    let win = window.open(
-      //       '/jitsipuppeteer/jitsi_puppeteer.html?room=' + roomName,
-      //       '_blank'
-      //    )
-
-      //    win.addEventListener('message', (event) => {
-      //       if (event.data === 'initDone') {
-      //          console.log('Init Done recieved, disposing win.')
-      //          win.close()
-      //       }
-      //    })
-      // }
-
-      while (breakoutStatus.breakoutCounter < 3) {
-        // 3 Breakout Rooms should be there.
-        const name = breakoutBaseName + String(breakoutStatus.breakoutCounter)
-        console.log('Create Breakout Room', name)
-        breakout.createBreakoutRoom(name)
-        breakoutStatus.breakoutCounter++
-      }
-
-      // special Breakouts
-      Object.keys(breakoutStatus.customBreakouts).forEach((breakoutName) => {
-        if (!breakoutStatus.customBreakouts[breakoutName]) {
-          console.log('Creating Breakout Room', breakoutName)
-        }
-      })
     }
+    checkBreakout()
   })
 
   room.on(
