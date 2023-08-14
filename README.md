@@ -2,6 +2,8 @@
 
 Repository for my Jitsi Bot.
 
+![Bot Selection Screen](/jitsi-bot/jitsi.html) ← Click to try it out
+
 jitsi.html?room=jitsiroomname
 
 Features:
