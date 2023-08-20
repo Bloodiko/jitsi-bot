@@ -321,7 +321,7 @@ const addBreakout = (userId, argument) => {
     return
   }
   breakout.createBreakoutRoom(argument)
-  room.sendMessage('Breakout created with specified name.')
+  room.sendMessage('Breakout Room ' + argument + ' created', userId)
 }
 
 const help = (userId) => {
