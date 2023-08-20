@@ -1,6 +1,7 @@
 let con = null
 let room = null
-let isJoined = false
+let connectionEstablished = false
+let roomJoined = false
 let roomName = ''
 
 let bot_started = false
@@ -137,40 +138,32 @@ function loadBanlist() {
 
 const grantAdmin = (userId, argument) => {
   if (argument !== 'admin') {
-    room.sendPrivateTextMessage(userId, 'Wrong Password.')
+    room.sendMessage('Wrong Password.', userId)
     return
   }
 
   if (!room.isModerator()) {
-    room.sendPrivateTextMessage(
-      userId,
-      'Cannot grant Moderator, I am not a moderator.'
-    )
+    room.sendMessage('Cannot grant Moderator, I am not a moderator.', userId)
     return
   }
 
   room.grantOwner(userId)
-  room.sendPrivateTextMessage(
-    userId,
-    'Command Executed, you should have admin now.'
-  )
-
-  // grab user Stat ID for Permanent Storage
+  room.sendMessage('Command Executed, you should have admin now.', userId) // grab user Stat ID for Permanent Storage
 
   let user = room.getParticipantById(userId)
   if (!moderatorWhitelist.has(user.getStatsID())) {
     moderatorWhitelist.add(user.getStatsID())
     saveAdminIDs()
-    room.sendPrivateTextMessage(
-      userId,
-      "You've been added to the persistant whitelist and will be granted moderator automatically on your next join."
+    room.sendMessage(
+      "You've been added to the persistant Whitelist and will be granted moderator Automatically.",
+      userId
     )
   }
 }
 
 const reloadBot = (userId) => {
   // FIXME Needs fix for node ?
-  room.sendTextMessage('Reloading Bot, see ya in a second. ')
+  room.sendMessage('Reloading Bot, see ya in a second. ')
   location.reload()
 }
 
@@ -182,12 +175,12 @@ const muteAll = (userId) => {
 }
 
 const unknownCommand = (userId) => {
-  room.sendPrivateTextMessage(userId, 'Command not found')
+  room.sendMessage('Command not found', userId)
 }
 
 const setSubject = (userId, argument) => {
   room.setSubject(argument)
-  room.sendPrivateTextMessage(userId, 'Room Title Adjusted.')
+  room.sendMessage('Room Title Adjusted.', userId)
 }
 
 const ban = (userId, argument) => {
@@ -203,7 +196,7 @@ const ban = (userId, argument) => {
   console.log(statUserName)
 
   if (!room.getParticipantById(userId).isModerator()) {
-    room.sendPrivateTextMessage(userId, 'You are not allowed to ban a Person.')
+    room.sendMessage('You are not allowed to ban a Person.', userId)
     return
   }
 
@@ -211,23 +204,17 @@ const ban = (userId, argument) => {
     bannedUsers.includes(displayNameNormalized) ||
     bannedStatUsers.includes(statUserName)
   ) {
-    room.sendPrivateTextMessage(userId, 'Already banned. See /banlist')
+    room.sendMessage('Already banned. See /banlist', userId)
   } else {
     bannedUsers.push(displayNameNormalized)
     bannedStatUsers.push(statUserName)
-    room.sendPrivateTextMessage(
-      userId,
-      'User ' + argument.replace(' ', '') + ' banned.'
-    )
+    room.sendMessage('User ' + argument.replace(' ', '') + ' banned.', userId)
   }
   saveBanlist()
 }
 
 const banlist = (userId) => {
-  room.sendPrivateTextMessage(
-    userId,
-    'Banned User: \n' + bannedUsers.join('\n')
-  )
+  room.sendMessage('Banned User: \n' + bannedUsers.join('\n'), userId)
 }
 
 const unban = (userId, argument) => {
@@ -239,10 +226,7 @@ const unban = (userId, argument) => {
   console.log(statUserName)
 
   if (!room.getParticipantById(userId).isModerator()) {
-    room.sendPrivateTextMessage(
-      userId,
-      'You are not allowed to unban a Person.'
-    )
+    room.sendMessage('You are not allowed to unban a Person.', userId)
     return
   }
 
@@ -259,20 +243,14 @@ const unban = (userId, argument) => {
   bannedStatUsers.splice(indexStatuser, 1)
   bannedUsers.splice(indexBanneduser, 1)
 
-  room.sendPrivateTextMessage(
-    userId,
-    'User ' + argument.replace(' ', '') + ' unbanned.'
-  )
+  room.sendMessage('User ' + argument.replace(' ', '') + ' unbanned.', userId)
 
   saveBanlist()
 }
 
 const quitConferenceAfterTimeout = (userId, timeout) => {
   if (!room.isModerator()) {
-    room.sendPrivateTextMessage(
-      userId,
-      "Cannot start Timeout, I'm not a moderator!"
-    )
+    room.sendMessage("Cannot start Timeout, I'm not a moderator!", userId)
   }
 
   const timeoutInMS = timeout * 60 * 1000 // in ms
@@ -281,10 +259,7 @@ const quitConferenceAfterTimeout = (userId, timeout) => {
   let interval = 2
 
   if (quitConferenceTimeout) {
-    room.sendPrivateTextMessage(
-      userId,
-      'There is already a forced Timeout. Cannot set.'
-    )
+    room.sendMessage('There is already a forced Timeout. Cannot set.', userId)
   }
 
   const endConference = () => {
@@ -293,15 +268,15 @@ const quitConferenceAfterTimeout = (userId, timeout) => {
 
   const sendTimeoutWarning = (isLast) => {
     remainingTime = Math.floor(remainingTime / interval)
-    room.sendTextMessage(
-      'The room will be closed in ' +
+    room.sendMessage(
+      'Der Raum wird in ' +
         Math.floor(remainingTime / 60 / 1000) +
-        ' minutes.'
+        ' Minuten geschlossen.'
     )
 
     if (isLast) {
-      room.sendTextMessage(
-        'This is the last reminder. The room will be closed soon.'
+      room.sendMessage(
+        'Dies ist der Letzte Reminder. Der Raum wird in Kürze geschlossen.'
       )
       quitConferenceTimeout = setTimeout(endConference, remainingTime)
       return
@@ -314,7 +289,7 @@ const quitConferenceAfterTimeout = (userId, timeout) => {
     )
   }
 
-  room.sendTextMessage('Timer Started, you have ' + timeout + ' minutes.')
+  room.sendMessage('Timer Started, you have ' + timeout + ' minutes.')
 
   quitConferenceTimeout = setTimeout(
     sendTimeoutWarning,
@@ -325,7 +300,7 @@ const quitConferenceAfterTimeout = (userId, timeout) => {
 
 const quit = (userId) => {
   if (room.getParticipantById(userId).isModerator()) {
-    room.sendTextMessage("I'm leaving, bye.")
+    room.sendMessage("I'm leaving, bye.")
     room.room.doLeave()
     window.close()
   }
@@ -337,25 +312,35 @@ const getBreakoutIDs = (userId) => {
 
   let merged = breakoutIds.map((id, index) => id + ': ' + breakoutNames[index])
 
-  room.sendPrivateTextMessage(userId, 'BreakoutRooms: \n' + merged.join('\n'))
+  room.sendMessage('BreakoutRooms: \n' + merged.join('\n'), userId)
+}
+
+const addBreakout = (userId, argument) => {
+  if (!room.isModerator()) {
+    room.sendMessage('I am not moderator, cannot add Breakout.', userId)
+    return
+  }
+  breakout.createBreakoutRoom(argument)
+  room.sendMessage('Breakout created with specified name.')
 }
 
 const help = (userId) => {
   const commands = [
     'Available Commands:',
-    'help',
+    'addBreakout [RoomName]',
     'admin [password]',
-    'reload',
-    'muteAll',
-    'setSubject [Meeting Title]',
     'ban [User Display Name]',
     'unban [User Display Name]',
     'banlist',
-    'timeoutConf [time in minutes] # forcefully exits the conference after the given time.',
+    'help',
+    'muteAll',
     'quit',
+    'reload',
+    'setSubject [Meeting Title]',
+    'timeoutConf [time in minutes] # forcefully exits the conference after the given time.',
   ]
 
-  room.sendPrivateTextMessage(userId, commands.join('\n'))
+  room.sendMessage(commands.join('\n'), userId)
 }
 
 /* -----------------------------
@@ -374,6 +359,7 @@ const commandHandler = {
   '/banlist': banlist,
   '/timeoutConf': quitConferenceAfterTimeout,
   '/quit': quit,
+  '/addBreakout': addBreakout,
 }
 
 function conferenceInit() {
@@ -381,12 +367,11 @@ function conferenceInit() {
 
   const onConnectionSuccess = (ev) => {
     console.log('Connection Success')
-    isJoined = true
+    connectionEstablished = true
   }
   const onConnectionFailed = (ev) => {
     console.log('Connection Failed')
   }
-
   /**
    * This function is called when we disconnect.
    */
@@ -455,7 +440,7 @@ function needBreakout() {
 }
 
 function checkBreakout() {
-  if (!isJoined) {
+  if (!roomJoined) {
     setTimeout(checkBreakout, 3000)
     return
   }
@@ -468,9 +453,8 @@ function checkBreakout() {
     console.log('Create Breakout Room', name)
     breakout.createBreakoutRoom(name)
     breakoutStatus.breakoutCounter++
-  }
+  } // special Breakouts
 
-  // special Breakouts
   Object.keys(breakoutStatus.customBreakouts).forEach((breakoutName) => {
     if (!breakoutStatus.customBreakouts[breakoutName]) {
       console.log('Creating Breakout Room', breakoutName)
@@ -480,12 +464,7 @@ function checkBreakout() {
 }
 
 function roomInit() {
-  if (!roomName) {
-    console.log('No Room Name, not launching bot.')
-    return
-  }
-
-  if (!isJoined) {
+  if (!connectionEstablished) {
     setTimeout(roomInit, 1000)
     return
   }
@@ -493,7 +472,8 @@ function roomInit() {
   const onConferenceJoined = (ev) => {
     console.log('Conference Joined')
 
-    bot_started = true // Global Var - see HTML
+    bot_started = true
+    roomJoined = true
 
     document.querySelector('#start_bot_button').disabled = true
   }
@@ -504,6 +484,10 @@ function roomInit() {
     JitsiMeetJS.events.conference.CONFERENCE_JOINED,
     onConferenceJoined
   )
+
+  room.on(JitsiMeetJS.events.conference.CONFERENCE_LEFT, () => {
+    roomJoined = false
+  })
 
   room.on(JitsiMeetJS.events.conference.MESSAGE_RECEIVED, (userId, message) => {
     log(
@@ -543,17 +527,14 @@ function roomInit() {
       } catch (error) {
         if (message.startsWith('/')) {
           if (command in commandHandler) {
-            room.sendPrivateTextMessage(
-              userId,
-              'Error while Executing Command.'
-            )
+            room.sendMessage('Error while Executing Command.', userId)
           } else {
-            room.sendPrivateTextMessage(userId, 'Command not found. Try /help')
+            room.sendMessage('Command not found. Try /help', userId)
           }
         } else {
-          room.sendPrivateTextMessage(
-            userId,
-            'I wont talk back, try commands with / like /help.'
+          room.sendMessage(
+            'I wont talk back, try commands with / like /help.',
+            userId
           )
         }
         console.error(error)
@@ -569,9 +550,9 @@ function roomInit() {
       bannedUsers.includes(displayNameNormalized) ||
       bannedStatUsers.includes(userObj.getStatsID())
     ) {
-      room.sendPrivateTextMessage(userId, 'You are Banned from this Room.')
+      room.sendMessage('You are Banned from this Room.', userId)
       room.kickParticipant(userId, 'You Are Banned!')
-      log('Kicked user on join because user is banned from this room.')
+      log('Kick on Join because user is Banned from Room.')
     }
 
     // Add Moderator on Whitelist
@@ -587,11 +568,12 @@ function roomInit() {
   room.on(JitsiMeetJS.events.conference.USER_ROLE_CHANGED, (userId, role) => {
     console.log(userId, ' Role Change: ', role)
     if (userId === room.myUserId() && role === 'moderator') {
-      room.sendTextMessage('Thank you for granting me Moderator')
+      room.sendMessage('Thank you for granting me Moderator')
       console.log('Setting Start muted Policy.')
       room.setStartMutedPolicy({ audio: false, video: true })
+
+      checkBreakout()
     }
-    checkBreakout()
   })
 
   room.on(
@@ -638,18 +620,16 @@ function roomInit() {
 
   setTimeout(() => {
     if (!room.isModerator()) {
-      room.sendTextMessage('Please grant me Moderator to allow me to work.')
+      room.sendMessage('Please grant me Moderator to allow me to work.')
     }
-  }, 2000)
-
-  // reload Room at midnight, to clear chat.
+  }, 2000) // reload Room at midnight, to clear chat.
 
   const now = new Date()
   const midnight = new Date(now).setHours(24, 0, 0, 0)
 
   window.dailyReloadTimeout = setTimeout(() => {
     room.end()
-    reloadBot
+    reloadBot()
   }, midnight - now)
   console.log('Delay for reload at Midnight DEBUG: ', midnight - now)
 }
@@ -707,9 +687,8 @@ function openBot() {
         return customInput
       }
       return roomInput
-    }
+    } // Default case
 
-    // Default case
     return roomIDs.main
   }
 
