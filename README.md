@@ -2,11 +2,13 @@
 
 Repository for my Jitsi Bot.
 
+### Run the Bot Online here:
+
 [Bot Selection Site](https://bloodiko.github.io/jitsi-bot/jitsi-bot/jitsi.html) ← Click to try it out
 
 jitsi.html?room=jitsiroomname
 
-Features:
+## Features:
 
 - /help
 - /ban
@@ -23,7 +25,7 @@ Features:
 
 Future:
 
-- create / rename Breakouts
+- rename Breakouts
 - add soundboard
 
 ## Installation
@@ -36,6 +38,7 @@ Future:
 
 ## Usage
 
+Important: On the Public meet.jit.si Server you need to open the Room first manually. 
 Send a Private Message to the Bot with a command.
 
 ![Help Command in Chat][def]
