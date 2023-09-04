@@ -41,6 +41,13 @@ Future:
 Important: On the Public meet.jit.si Server you need to open the Room first manually. 
 Send a Private Message to the Bot with a command.
 
+For a different Domain you need to pass additional parameters to the URL:
+
+domain=
+bosh=
+wsKeepAlive=  (Websocket Keep Alive URL, without domain)
+useTurnUdp (No Value)
+
 ![Help Command in Chat][def]
 
 [def]: images/privateMessage_help.png

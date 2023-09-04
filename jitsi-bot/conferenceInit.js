@@ -1,82 +1,11 @@
-let con = null
-let room = null
-let connectionEstablished = false
-let roomJoined = false
-let roomName = ''
 
-let bot_started = false
-let roomInput = undefined
+log('Loading Conference Init')
 
-let breakout = null
-
-JitsiMeetJS.setLogLevel(JitsiMeetJS.logLevels.LOG)
-
-JitsiMeetJS.init()
-
-const roomIDs = {
-  test: 'ColouredSpicesExperienceLong',
-}
-
-const confOptions = {}
-
-const connOptions =
-  //connection options
-  {
-    hosts: {
-      anonymousdomain: "guest.meet.jit.si",
-      domain: 'meet.jit.si',
-      muc: 'conference.meet.jit.si',
-      focus: 'focus.meet.jit.si',
-    },
-    focusUserJid: 'focus@auth.meet.jit.si',
-    bosh: '/http-bind',
-    websocket: 'wss://meet.jit.si/xmpp-websocket',
-    constraints: {
-      video: {
-        height: {
-          ideal: 720,
-          max: 720,
-          min: 180,
-        },
-        width: {
-          ideal: 1280,
-          max: 1280,
-          min: 320,
-        },
-      },
-    },
-    //whiteboard: {
-    //   enabled: true,
-    //   collabServerBaseUrl: '',
-    //},
-    //useTurnUdp: true,
-    serviceUrl: 'wss://meet.jit.si/xmpp-websocket?room=roomname',
-    websocketKeepAliveUrl: 'https://meet.jit.si/_unlock?room=roomname',
-  }
-
-let bannedUsers = []
-let bannedStatUsers = []
-
-let quitConferenceTimeout = undefined
-
-let moderatorWhitelist = new Set()
-
-const breakoutBaseName = 'Breakout-Raum #'
-
-const logElement = document.querySelector('#log')
-
-const log = (message) => {
-  if (!logElement) {
-    return
-  }
-  logElement.textContent += '\n' + message
-  console.log(message)
-}
 
 function getStatUserByName(displayNameNormalized) {
   const statUserObj = room.getParticipants().find((user) => {
     if (
-      user._displayName.replace(' ', '').toLowerCase() === displayNameNormalized
+      user._displayName?.replace(' ', '').toLowerCase() === displayNameNormalized
     ) {
       return true
     }
@@ -365,7 +294,7 @@ const commandHandler = {
 }
 
 function conferenceInit() {
-  con = new JitsiMeetJS.JitsiConnection(null, null, connOptions)
+  con = new JitsiMeetJS.JitsiConnection(null, null, options)
 
   const onConnectionSuccess = (ev) => {
     console.log('Connection Success')
@@ -410,7 +339,7 @@ function conferenceInit() {
 }
 
 const getNameById = (userId) => {
-  return room.getParticipantById(userId)?._displayName
+  return room.getParticipantById(userId)?._displayName || undefined
 }
 
 function needBreakout() {
@@ -480,7 +409,7 @@ function roomInit() {
     document.querySelector('#start_bot_button').disabled = true
   }
 
-  room = con.initJitsiConference(roomName, confOptions)
+  room = con.initJitsiConference(roomName, options)
 
   room.addEventListener(
     JitsiMeetJS.events.conference.CONFERENCE_JOINED,
@@ -545,9 +474,7 @@ function roomInit() {
   )
   room.on(JitsiMeetJS.events.conference.USER_JOINED, (userId, userObj) => {
     log('USER JOINED EVENT ' + userId + ': ' + userObj._displayName)
-    const displayNameNormalized = userObj._displayName
-      .replace(' ', '')
-      .toLowerCase()
+    const displayNameNormalized = userObj._displayName?.replace(' ', '').toLowerCase() || ''
     if (
       bannedUsers.includes(displayNameNormalized) ||
       bannedStatUsers.includes(userObj.getStatsID())
@@ -624,16 +551,7 @@ function roomInit() {
     if (!room.isModerator()) {
       room.sendMessage('Please grant me Moderator to allow me to work.')
     }
-  }, 2000) // reload Room at midnight, to clear chat.
-
-  const now = new Date()
-  const midnight = new Date(now).setHours(24, 0, 0, 0)
-
-  window.dailyReloadTimeout = setTimeout(() => {
-    room.end()
-    reloadBot()
-  }, midnight - now)
-  console.log('Delay for reload at Midnight DEBUG: ', midnight - now)
+  }, 2000)
 }
 
 function main() {
@@ -641,24 +559,11 @@ function main() {
     return
   }
 
-  // get page Parameter room
+  JitsiMeetJS.setLogLevel(JitsiMeetJS.logLevels.LOG)
 
-  const urlParams = new URLSearchParams(window.location.search)
+  JitsiMeetJS.init()
 
-  const targetRoom = urlParams.get('room')
-
-  if (!targetRoom) {
-    log('No room Parameter, not launching bot.')
-    return
-  }
-
-  document.title = 'Jitsi Bot - ' + targetRoom
-
-  roomName = targetRoom.replace(' ', '').toLowerCase()
-
-  connOptions.serviceUrl = 'wss://meet.jit.si/xmpp-websocket?room=' + roomName
-  connOptions.websocketKeepAliveUrl =
-    'https://meet.jit.si/_unlock?room=' + roomName
+  document.title = 'Jitsi Bot - ' + roomName
 
   // load White and Banlist
   loadAdminIDs()
@@ -666,56 +571,13 @@ function main() {
 
   conferenceInit()
 
-  log('Target: ' + targetRoom)
-  roomInit()
+  log('Target: ' + roomName)
+
+  try {
+  roomInit();
+} catch (error) {
+  log(error);
+}
 }
 
-// Open new Tab with selected Bot as Parameter
-
-function openBot() {
-  const select = document.querySelector('#meetingSelector')
-
-  roomInput = select.value
-
-  const isValue = roomInput !== ''
-
-  const isCustom = roomInput === 'custom'
-
-  const customInput = document.querySelector('#customRoomInput').value
-
-  const getTargetRoom = (isValue, isCustom, customInput) => {
-    if (isValue) {
-      if (isCustom) {
-        return customInput
-      }
-      return roomInput
-    } // Default case
-
-    return roomIDs.main
-  }
-
-  window.open(
-    '/jitsi-bot/jitsi-bot/jitsi.html?room=' +
-      getTargetRoom(isValue, isCustom, customInput),
-    '_blank'
-  )
-}
-
-document.querySelector('#start_bot_button')?.addEventListener('click', openBot)
-document
-  .querySelector('#clearLog')
-  ?.addEventListener(
-    'click',
-    () => (document.querySelector('#log').textContent = '')
-  )
-
-let d = new Date()
-log(d)
-if (d.getHours == 0 && d.getMinutes() == 0) {
-  // delay bot start for a while to give jitsi time to dispose room.
-  setTimeout(main, 60000)
-} else {
-  log('Debug: Not Waiting as time check returned false.')
-  log(d.getHours() + ':' + d.getMinutes())
-  main()
-}
+main()
