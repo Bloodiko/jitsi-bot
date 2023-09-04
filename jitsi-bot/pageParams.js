@@ -62,6 +62,9 @@ const checkUrlParams = () => {
     if (urlParams.has('disableWebsocket')) {
         delete options.websocket
         delete options.websocketKeepAliveUrl
+        if ( options.serviceUrl.startsWith('wss://') ) {
+            options.serviceUrl = options.serviceUrl.replace('wss://', 'https://')
+        }
     }
 
   return true
