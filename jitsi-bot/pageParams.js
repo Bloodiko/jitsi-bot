@@ -46,7 +46,6 @@ const checkUrlParams = () => {
     if (bosh) {
         options.bosh = `https://${domain}/${bosh}`
         options.hosts.bosh = `https://${domain}/${bosh}`
-        options.serviceUrl = `https://${domain}/${bosh}?room=${roomName}`
     }
 
     // get websocketKeepAliveUrl
@@ -57,6 +56,12 @@ const checkUrlParams = () => {
     }
     if (websocketKeepAliveUrl && domain) {
         options.websocketKeepAliveUrl = `https://${domain}/${websocketKeepAliveUrl}`
+    }
+
+    // disable websocket
+    if (urlParams.has('disableWebsocket')) {
+        delete options.websocket
+        delete options.websocketKeepAliveUrl
     }
 
   return true
