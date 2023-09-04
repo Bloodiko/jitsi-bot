@@ -13,14 +13,14 @@ const options =
   //merged options
   {
     hosts: {
-      //anonymousdomain: 'guest.meet.jit.si',
+      anonymousdomain: 'guest.meet.jit.si',
       domain: 'meet.jit.si',
       muc: 'conference.meet.jit.si',
-      //focus: 'focus.meet.jit.si',
+      focus: 'focus.meet.jit.si',
     },
     //focusUserJid: 'focus@auth.meet.jit.si',
     bosh: '/http-bind',
-    //websocket: 'wss://meet.jit.si/xmpp-websocket',
+    websocket: 'wss://meet.jit.si/xmpp-websocket',
     constraints: {
       video: {
         height: {

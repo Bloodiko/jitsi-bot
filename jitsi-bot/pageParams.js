@@ -31,6 +31,7 @@ const checkUrlParams = () => {
         options.hosts.domain = domain
         options.hosts.muc = `conference.${domain}`
         options.hosts.focus = `focus.${domain}`
+        options.hosts.anonymousdomain = `guest.${domain}`
         options.websocket = `wss://${domain}/xmpp-websocket`
         options.serviceUrl = `wss://${domain}/xmpp-websocket?room=${roomName}`
 
