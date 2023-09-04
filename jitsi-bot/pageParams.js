@@ -63,7 +63,7 @@ const checkUrlParams = () => {
         delete options.websocket
         delete options.websocketKeepAliveUrl
         if ( options.serviceUrl.startsWith('wss://') ) {
-            options.serviceUrl = options.serviceUrl.replace('wss://', 'https://')
+            options.serviceUrl = `https://${domain}/${bosh}?room=${roomName}`
         }
     }
 
