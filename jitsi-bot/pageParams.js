@@ -27,6 +27,8 @@ const checkUrlParams = () => {
     let domain = urlParams.get('domain')
     if (!domain) {
         log('No domain Parameter, using default domain meet.jit.si.')
+        options.serviceUrl = `wss://meet.jit.si/xmpp-websocket?room=${roomName}`
+        options.websocketKeepAliveUrl = `https://meet.jit.si/_unlock?room=${roomName}`
     } else {
         options.hosts.domain = domain
         options.hosts.muc = `conference.${domain}`
