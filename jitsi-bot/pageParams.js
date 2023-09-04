@@ -67,6 +67,17 @@ const checkUrlParams = () => {
         }
     }
 
+    // disable anonymousdomain
+    if (urlParams.has('disableAnonymousdomain')) {
+        delete options.hosts.anonymousdomain
+    }
+
+    // disable focus
+    if (urlParams.has('disableFocus')) {
+        delete options.hosts.focus
+    }
+    
+
   return true
 }
 
