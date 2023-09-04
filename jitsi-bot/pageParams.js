@@ -50,7 +50,7 @@ const checkUrlParams = () => {
     let websocketKeepAliveUrl = urlParams.get('wsKeepAlive')
     if (!websocketKeepAliveUrl && !domain) {
         log('No wsKeepAlive Parameter, using default wsKeepAlive from meet.jit.si.')
-        options.websocketKeepAliveUrl = `https://meet.jit.si/_unlock?room=${roomname}`
+        options.websocketKeepAliveUrl = `https://meet.jit.si/_unlock?room=${roomName}`
     }
     if (websocketKeepAliveUrl && domain) {
         options.websocketKeepAliveUrl = `https://${domain}/${websocketKeepAliveUrl}`
