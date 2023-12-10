@@ -14,7 +14,7 @@ jitsi.html?room=jitsiroomname
 - /ban
 - /banlist
 - /unban
-- /muteAll 
+- /muteAll
 - /admin passwd - grants Moderator
 - /quit - exits bot
 - /reload - reloads bot
@@ -38,15 +38,21 @@ Future:
 
 ## Usage
 
-Important: On the Public meet.jit.si Server you need to open the Room first manually. 
+Important: On the Public meet.jit.si Server you need to open the Room first manually.
 Send a Private Message to the Bot with a command.
 
 For a different Domain you need to pass additional parameters to the URL:
 
-domain=
-bosh=
-wsKeepAlive=  (Websocket Keep Alive URL, without domain)
-useTurnUdp (No Value)
+```js
+// join params with &
+domain // domain as listed in config.hosts (e.g. meet.jit.si)
+bosh // BOSH URL (e.g. https://meet.jit.si/http-bind) can often be omitted
+wsKeepAlive //(Websocket Keep Alive URL, without domain) can often be omitted
+useTurnUdp // (No Value)
+disableAnonymousdomain // (No Value)
+disableFocus // (No Value)
+disableGuest // (No Value)
+```
 
 ![Help Command in Chat][def]
 
