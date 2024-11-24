@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" href="soundboard.css" />
+    <script src="/jitsi-bot/jquery.min.js"></script>
+    <!-- <script src="lib-jitsi-meet.min.js"></script> -->
+    <script src="https://meet.jit.si/libs/lib-jitsi-meet.min.js"></script>
+    <title>Soundboard</title>
+    <meta charset="UTF-8" />
+  </head>
+  <body>
+    <header>Soundboard</header>
+    <select name="meetingSelector" id="meetingSelector">
+      Select Meeting
+      <option value="test">Test</option>
+      <option value="idleroom">Idleroom</option>
+      <option value="custom">Andere Option, unten eintragen</option>
+    </select>
+    <br />
+    <label for="customRoomInput">Anderer Raum: </label>
+    <input type="text" id="customRoomInput" />
+    <br />
+    <button id="start_bot_button">Start Bot.</button>
+    <h3>Soundboard Control</h3>
+    <audio
+      src="http://127.0.0.1:5500/audio/nggyu.mp3"
+      controls
+      id="soundboard"
+      crossorigin="anonymous"
+    ></audio>
+    <video
+      id="videoboard"
+      crossorigin="anonymous"
+      controls
+      src="/video/fItAll.mp4"
+    ></video>
+    <br />
+    <label for="soundboardSourceInput">Audio Source Input</label>
+    <input
+      type="url"
+      name="soundboardSourceInput"
+      id="soundboardSourceInput"
+      pattern=".*\/\/.*\.mp3"
+    />
+    <button id="setSoundboardSource">Set Source</button>
+    <br />
+    <h3>Jitsi Bot Log</h3>
+    <button id="clearLog">Clear Log</button>
+    <div id="log"></div>
+  </body>
+  <script src="/jitsi-bot/defaults.js"></script>
+  <script src="soundboard_effect.js"></script>
+  <script src="conferenceInit.js"></script>
+</html>

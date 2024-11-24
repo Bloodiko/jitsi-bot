@@ -1,0 +1,59 @@
+
+#log {
+    white-space: pre-wrap;
+}
+
+input#soundboardSourceInput:valid + #setSoundboardSource {
+    border-color: green
+}
+
+input#soundboardSourceInput:invalid + #setSoundboardSource {
+    border-color: red
+}
+
+#videoboard {
+    max-width: 20em;
+}
+
+.wrapper {
+    display: flex;
+}
+
+#logOuter {
+    width: 60%;
+}
+
+#participantsOuter {
+    width: 30%;
+}
+
+.participants {
+    flex: auto;
+}
+
+.privateMessage {
+    background-color: plum;
+}
+
+.publicMessage {
+    background-color: cyan;
+}
+
+.event {
+    background-color: greenyellow;
+}
+
+.internal {
+    background-color: beige;
+}
+
+.kickedOther {
+    background-color: orange;
+}
+.kickedSelf {
+    background-color: orangered;
+}
+
+.isModerator {
+    color: darkmagenta;
+}

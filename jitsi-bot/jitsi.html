@@ -5,29 +5,40 @@
   <script src="jquery.min.js"></script>
   <title>Jitsi Bot</title>
   <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy" content="worker-src 'self' http://127.0.0.1:5500/; script-src *">
+  <link rel="stylesheet" href="jitsi.css" />
 </head>
 
 <body>
   <header>Jitsi Bots:</header>
   <select name="meetingSelector" id="meetingSelector">
     Select Meeting
-    <option default value="custom">Select this, and enter the room name below.</option>
-    <option value="hardcodedroomsgohere">frequently used conferences can be hardcoded</option>
-    <option value="test">Test</option>
-    <option value="idleroom">Idleroom</option>
+    <option value="custom">Andere Option, unten eintragen</option>
   </select>
   <br />
-  <label for="customRoomInput">Custom Room:</label>
+  <label for="customRoomInput">Anderer Raum: </label>
   <input type="text" id="customRoomInput" />
   <br />
   <button id="start_bot_button">Start Bot.</button>
   <br />
-  <h3>Bot Log:</h3>
-  <button id="clearLog">Clear Log</button>
-  <div id="log" style="white-space:pre;"></div>
+  <div class="wrapper">
+    <section id="logOuter">
+      <h3>Jitsi Bot Log</h3>
+      <button id="clearLog">Clear Log</button>
+      <p></p>
+      <div id="log" style="white-space: pre-wrap"></div>
+    </section>
+    <aside id="participantsOuter">
+      <h3>Participants</h3>
+      <div id="participantsInner"></div>
+    </aside>
+  </div>
 </body>
 <script id="libJitsiMeet"></script>
 <script src="defaults.js"></script>
+<script src="sharedWorker.js"></script>
+<script src="botFunctions.js"></script>
+<script src="botCommands.js"></script>
 <script src="pageParams.js"></script>
 <script id="confInit"></script>
 

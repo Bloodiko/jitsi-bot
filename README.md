@@ -2,6 +2,12 @@
 
 Repository for my Jitsi Bot.
 
+Repository contains 
+* Jitsi Bot
+* Jitsi Soundboard Bot
+* Service Worker (non functional for now)
+* some audio and video files for the Soundboard - I do Not own the rights to these files, they are owned by their respective owners and only included for showcase purposes.
+
 ### Run the Bot Online here:
 
 [Bot Selection Site](https://bloodiko.github.io/jitsi-bot/jitsi-bot/jitsi.html) ← Click to try it out
@@ -10,7 +16,7 @@ jitsi.html?room=jitsiroomname
 
 ## Features:
 
-- /help
+- /help # Use this to show all available commands. 
 - /ban
 - /banlist
 - /unban
@@ -22,11 +28,8 @@ jitsi.html?room=jitsiroomname
   participants after the given time. - Will notify in certain intervals.
 - /setSubject [title] - sets Jitsi Room Name (Top of the screen next to
   Duration)
-
-Future:
-
-- rename Breakouts
-- add soundboard
+- /joinSoundboard - joins the Soundboard to the conference, only works with meet.jit.si for the moment.
+- ... Many more 
 
 ## Installation
 
@@ -54,6 +57,10 @@ disableFocus // (No Value)
 disableGuest // (No Value)
 ```
 
+![Mini Showcase][showcase]
+
 ![Help Command in Chat][def]
 
+
 [def]: images/privateMessage_help.png
+[showcase]: images/Mini-Showcase.png
