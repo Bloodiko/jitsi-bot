@@ -254,7 +254,7 @@ function cleanupOnRoomLeft() {
   clearInterval(workerHeartbeatIntervalId)
   workerHeartbeatIntervalId = undefined
 
-  if (ws && ws.readyState === ws.OPEN) {
+  if (!typeof ws == 'undefined' && ws.readyState === ws.OPEN) {
     ws.send(
       JSON.stringify({
         type: wsMessages.ROOM_LEFT,
