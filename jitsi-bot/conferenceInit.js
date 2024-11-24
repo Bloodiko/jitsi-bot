@@ -1,3 +1,11 @@
+function tryReconnect() {
+  room.leave()
+  con.disconnect()
+
+  conferenceInit()
+  roomInit()
+}
+
 function conferenceInit() {
   con = new JitsiMeetJS.JitsiConnection(null, null, options)
 
