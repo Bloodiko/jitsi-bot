@@ -248,7 +248,8 @@ const sendMessage = (userId, argument) => {
 }
 
 const joinSoundBot = (userId) => {
-  window.open('/soundboard/soundboard.html?room=' + roomName, '_blank')
+  const url = new URL(window.location.href)
+  window.open('../soundboard/soundboard.html'+url.search, '_blank')
 }
 
 const setAdminPass = (userId, argument) => {

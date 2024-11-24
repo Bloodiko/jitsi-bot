@@ -91,10 +91,7 @@ const mountConfInit = () => {
     return
   }
   log('JitsiMeetJS loaded')
-  document.querySelector('#confInit').src = window.location.pathname.replace(
-    'jitsi.html',
-    'conferenceInit.js'
-  )
+  document.querySelector('#confInit').src = "conferenceInit.js"
 }
 
 if (checkUrlParams()) {

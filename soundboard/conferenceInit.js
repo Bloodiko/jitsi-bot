@@ -235,9 +235,6 @@ const commandHandler = {
 }
 
 function conferenceInit() {
-  options.serviceUrl =
-    'wss://meet.jit.si/xmpp-websocket?room=' + roomName
-
   con = new JitsiMeetJS.JitsiConnection(null, null, options)
 
   const onConnectionSuccess = (ev) => {

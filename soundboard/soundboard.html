@@ -2,9 +2,6 @@
 <html>
   <head>
     <link rel="stylesheet" href="soundboard.css" />
-    <script src="/jitsi-bot/jquery.min.js"></script>
-    <!-- <script src="lib-jitsi-meet.min.js"></script> -->
-    <script src="https://meet.jit.si/libs/lib-jitsi-meet.min.js"></script>
     <title>Soundboard</title>
     <meta http-equiv="Content-Security-Policy" content="worker-src 'self'; media-src *">
     <meta charset="UTF-8" />
@@ -24,7 +21,7 @@
     <button id="start_bot_button">Start Bot.</button>
     <h3>Soundboard Control</h3>
     <audio
-      src="/audio/nggyu.mp3"
+      src="../audio/nggyu.mp3"
       controls
       id="soundboard"
       crossorigin="anonymous"
@@ -33,7 +30,7 @@
       id="videoboard"
       crossorigin="anonymous"
       controls
-      src="/video/big-buck-bunny-sample.mp4"
+      src="../video/big-buck-bunny-sample.mp4"
     ></video>
     <br />
     <form id="soundboardInputForm">
@@ -62,7 +59,9 @@
       </aside>
     </div>
   </body>
-  <script src="/jitsi-bot/defaults.js"></script>
+  <script id="libJitsiMeet"></script>
+  <script src="../jitsi-bot/defaults.js"></script>
   <script src="soundboard.js"></script>
-  <script src="conferenceInit.js"></script>
+  <script src="../jitsi-bot/pageParams.js"></script>
+  <script id="confInit"></script>
 </html>
