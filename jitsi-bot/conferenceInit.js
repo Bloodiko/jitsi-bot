@@ -63,7 +63,7 @@ function roomInit() {
 
     postMessageToWorker(workerMessages.ADD_BOT, { roomName })
 
-    if (ws.readyState === ws.OPEN) {
+    if (ws && ws.readyState === ws.OPEN) {
       ws.send(
         JSON.stringify({
           type: wsMessages.ROOM_JOIN,
