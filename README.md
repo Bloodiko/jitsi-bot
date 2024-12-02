@@ -28,10 +28,17 @@ jitsi.html?room=jitsiroomname
   participants after the given time. - Will notify in certain intervals.
 - /setSubject [title] - sets Jitsi Room Name (Top of the screen next to
   Duration)
-- /joinSoundboard - joins the Soundboard to the conference, only works with meet.jit.si for the moment.
+- /joinSoundboard - joins the Soundboard to the conference - Uses the same Query Parameters as the bot. 
 - ... Many more 
 
+## Other files 
+[Audio Files](audio) - Contains some audio files for the Soundboard
+[Video Files](video) - Contains some video files for the Soundboard
+
+
 ## Installation
+
+To try it before cloning you can use the [Bot Selection Site](https://bloodiko.github.io/jitsi-bot/jitsi-bot/jitsi.html) ← Click to try it out
 
 1. Download Repository
 2. Run a static webserver (e.g. `python3 -m http.server 8080`) or just run the
@@ -41,7 +48,7 @@ jitsi.html?room=jitsiroomname
 
 ## Usage
 
-Important: On the Public meet.jit.si Server you need to open the Room first manually.
+**Important**: On the Public meet.jit.si Server you need to open the Room first manually.
 Send a Private Message to the Bot with a command.
 
 For a different Domain you need to pass additional parameters to the URL:
