@@ -369,7 +369,8 @@ function roomInit() {
 
   setTimeout(() => {
     if (!room.isModerator()) {
-      room.sendMessage('Please grant me Moderator to allow me to work.')
+      log("currently disabled automatic Moderator request.")
+      //room.sendMessage('Please grant me Moderator to allow me to work.')
     }
   }, 2000)
 }

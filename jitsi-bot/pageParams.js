@@ -1,12 +1,29 @@
 const checkRoomParam = (urlParams) => {
   // get page Parameter room
-  const targetRoom = urlParams.get('room')
 
-  if (!targetRoom) {
-    log('No room Parameter, not launching bot.')
+  const targetJitsi = urlParams.get('targetJitsi') || undefined
+
+  if (!targetJitsi) {
+    log('No targetJitsi Parameter, not launching bot.')
     return false
   }
-  roomName = targetRoom.replace(' ', '').toLowerCase()
+  try {
+    console.log('targetJitsi:', targetJitsi)
+    const targetJitsiUrl = new URL(targetJitsi)
+    console.log('targetJitsiUrl:', targetJitsiUrl)
+
+    // pathname includes the first /
+    const targetRoom = targetJitsiUrl.pathname.split('/')[1] || undefined
+
+    if (!targetRoom) {
+      log('No room Parameter in targetJitsi URL, not launching bot.')
+      return false
+    }
+    roomName = targetRoom.replace(' ', '').toLowerCase()
+  } catch (error) {
+    log('Invalid targetJitsi URL.', LOGCLASSES.BOT_INTERNAL_LOG)
+    return false
+  }
 
   return true
 }
@@ -18,70 +35,6 @@ const checkUrlParams = () => {
     return false
   }
 
-  // get useTurnUdp
-  if (urlParams.has('useTurnUdp')) {
-    options.useTurnUdp = useTurnUdp
-  }
-
-  // get domain
-  let domain = urlParams.get('domain')
-  if (!domain) {
-    log('No domain Parameter, using default domain meet.jit.si.')
-    options.serviceUrl = `wss://meet.jit.si/xmpp-websocket?room=${roomName}`
-    options.websocketKeepAliveUrl = `https://meet.jit.si/_unlock?room=${roomName}`
-  } else {
-    options.hosts.domain = domain
-    options.hosts.muc = `conference.${domain}`
-    options.hosts.focus = `focus.${domain}`
-    options.hosts.anonymousdomain = `guest.${domain}`
-    options.websocket = `wss://${domain}/xmpp-websocket`
-    options.serviceUrl = `wss://${domain}/xmpp-websocket?room=${roomName}`
-
-    // if domain is not meet.jit.si, use domain for libJitsiMeetSrc
-    libJitsiMeetSrc = `https://${domain}/libs/lib-jitsi-meet.min.js`
-  }
-
-  // if bosh use bosh for serviceUrl
-  let bosh = urlParams.get('bosh')?.replace('/', '') // remove leading slash if present
-  if (bosh) {
-    options.bosh = `https://${domain}/${bosh}`
-    options.hosts.bosh = `https://${domain}/${bosh}`
-  }
-
-  // get websocketKeepAliveUrl
-  let websocketKeepAliveUrl = urlParams.get('wsKeepAlive')
-  if (!websocketKeepAliveUrl && !domain) {
-    log('No wsKeepAlive Parameter, using default wsKeepAlive from meet.jit.si.')
-    options.websocketKeepAliveUrl = `https://meet.jit.si/_unlock?room=${roomName}`
-  }
-  if (websocketKeepAliveUrl && domain) {
-    options.websocketKeepAliveUrl = `https://${domain}/${websocketKeepAliveUrl}`
-  }
-
-  // disable websocket
-  if (urlParams.has('disableWebsocket')) {
-    delete options.websocket
-    delete options.websocketKeepAliveUrl
-    if (options.serviceUrl.startsWith('wss://')) {
-      options.serviceUrl = `https://${domain}/${bosh}?room=${roomName}`
-    }
-  }
-
-  // disable anonymousdomain
-  if (urlParams.has('disableAnonymousdomain')) {
-    delete options.hosts.anonymousdomain
-  }
-
-  // disable focus
-  if (urlParams.has('disableFocus')) {
-    delete options.hosts.focus
-  }
-
-  // disable guest
-  if (urlParams.has('disableGuest')) {
-    delete options.hosts.anonymousdomain
-  }
-
   return true
 }
 
@@ -91,14 +44,60 @@ const mountConfInit = () => {
     return
   }
   log('JitsiMeetJS loaded')
-  document.querySelector('#confInit').src = "conferenceInit.js"
+  document.querySelector('#confInit').src = 'conferenceInit.js'
 }
 
-if (checkUrlParams()) {
-  // mount libJitsiMeet
-  log('Mounting libJitsiMeet from ' + libJitsiMeetSrc)
-  document.querySelector('#libJitsiMeet').src = libJitsiMeetSrc
+const mergeConfig = () => {
+  if (checkUrlParams()) {
+    if (!window.config) {
+      setTimeout(mergeConfig, 1000)
+      return
+    }
 
-  // mount conferenceInit
-  mountConfInit()
+    // merge global config object with options
+    options = {
+      ...config,
+      ...options,
+    }
+
+    if (options.bosh) {
+      options.serviceUrl = `https://${options.bosh}/http-bind?room=${roomName}`
+    } 
+    // mount libJitsiMeet
+    log('Mounting libJitsiMeet from ' + libJitsiMeetSrc)
+    document.querySelector('#libJitsiMeet').src = libJitsiMeetSrc
+
+    // mount conferenceInit
+    mountConfInit()
+  }
 }
+
+const initConfigAndLib = () => {
+  const url = new URL(window.location.href)
+
+  if (url.searchParams.has('targetJitsi')) {
+    try {
+      const targetJitsi = new URL(url.searchParams.get('targetJitsi'))
+      if (targetJitsi) {
+        // add domain to options
+        options.targetJitsi = targetJitsi
+        const targetJitsiConfig = `https://${targetJitsi.hostname}/config.js`
+        
+        document.querySelector(
+          '#jitsiConfig'
+        ).src = targetJitsiConfig
+        log('Mounting config from ' + targetJitsiConfig)
+        libJitsiMeetSrc = `https://${targetJitsi.hostname}/libs/lib-jitsi-meet.min.js`
+      } else {
+        log('No targetJitsi URL provided')
+        return
+      }
+    } catch (error) {
+      console.error('Error parsing targetJitsi URL:', error)
+      log('Invalid targetJitsi URL.', LOGCLASSES.BOT_INTERNAL_LOG)
+    }
+    mergeConfig()
+  }
+}
+
+initConfigAndLib()

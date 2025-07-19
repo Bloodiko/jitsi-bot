@@ -64,50 +64,19 @@ let botId = undefined
 let lastUserWhoExecutedCommand = undefined
 let workerHeartbeatIntervalId = undefined
 
-const options =
-  //merged options
+let options =
+  //will be merged with config object from the target Jitsi server
   {
     displayName: '🤖',
     soundboardDisplayName: '🎧🤖♫🎶',
-    hosts: {
-      anonymousdomain: 'guest.meet.jit.si',
-      domain: 'meet.jit.si',
-      muc: 'conference.meet.jit.si',
-      focus: 'focus.meet.jit.si',
-    },
-    //focusUserJid: 'focus@auth.meet.jit.si',
-    bosh: '/http-bind',
-    websocket: 'wss://meet.jit.si/xmpp-websocket',
-    constraints: {
-      video: {
-        height: {
-          ideal: 720,
-          max: 720,
-          min: 180,
-        },
-        width: {
-          ideal: 1280,
-          max: 1280,
-          min: 320,
-        },
-      },
-    },
     startAudioMuted: 1,
     startWithAudioMuted: true,
     startVideoMuted: 1,
     startWithVideoMuted: true,
-    disableNS: false,
     audioQuality: { stereo: true },
     breakoutRooms: {
       hideAutoAssignButton: true,
     },
-    //whiteboard: {
-    //   enabled: true,
-    //   collabServerBaseUrl: '',
-    //},
-    //useTurnUdp: true,
-    serviceUrl: 'wss://meet.jit.si/xmpp-websocket?room=roomname',
-    //websocketKeepAliveUrl: 'https://meet.jit.si/_unlock?room=roomname',
   }
 
 let libJitsiMeetSrc = 'https://meet.jit.si/libs/lib-jitsi-meet.min.js'
@@ -116,15 +85,6 @@ let libJitsiMeetSrc = 'https://meet.jit.si/libs/lib-jitsi-meet.min.js'
 const breakoutBaseName = 'Breakout-Raum #'
 
 const customBreakouts = {
-  ' AFK 🦗📞': false,
-  ' vor die Tür 🚪': false,
-  ' um die Ecke 📐': false,
-  ' Fokustunnel 🚇': false,
-  ' nebenan 🡆': false,
-  ' ich fühl mich genervt 😠': false,
-  ' dumme Fragen ❓': false,
-  ' grober Unfug 💣': false,
-  ' dumme Ideen 💡': false,
 }
 
 const breakoutInitCount = 0
@@ -191,30 +151,12 @@ log(d)
 // Open new Tab with selected Bot as Parameter
 
 function openBot() {
-    const select = document.querySelector('#meetingSelector')
-  
-    roomInput = select.value
-  
-    const isValue = roomInput !== ''
-  
-    const isCustom = roomInput === 'custom'
-  
-    const customInput = document.querySelector('#customRoomInput').value
-  
-    const getTargetRoom = (isValue, isCustom, customInput) => {
-      if (isValue) {
-        if (isCustom) {
-          return customInput
-        }
-        return roomInput
-      } // Default case
-  
-      return roomIDs.main
-    }
+    const targetJitsi = document.querySelector('#targetJitsi').value
+
     window.open(
-      `${window.location.pathname}?room=${getTargetRoom(isValue, isCustom, customInput)}`,
+      `${window.location.pathname}?targetJitsi=${targetJitsi}`,
       '_blank'
     )
   }
   
-  document.querySelector('#start_bot_button')?.addEventListener('click', openBot)
+document.querySelector('#start_bot_button')?.addEventListener('click', openBot)

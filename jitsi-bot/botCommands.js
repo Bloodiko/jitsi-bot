@@ -42,7 +42,8 @@ const reloadBot = (userId = 'system') => {
 
   if (userId === 'system') {
     log(`Reload Forced by system.`)
-    location.reload()
+    log(`Temporarily disabled reload command.`)
+    //location.reload()
     return
   }
 

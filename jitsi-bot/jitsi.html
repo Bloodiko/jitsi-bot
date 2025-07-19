@@ -10,14 +10,9 @@
 </head>
 
 <body>
-  <header>Jitsi Bots:</header>
-  <select name="meetingSelector" id="meetingSelector">
-    Select Meeting
-    <option value="custom">Andere Option, unten eintragen</option>
-  </select>
-  <br />
-  <label for="customRoomInput">Anderer Raum: </label>
-  <input type="text" id="customRoomInput" />
+  <h1>Jitsi Bot</h1>
+  <label for="targetJitsi">Conference URL: </label>
+  <input style="width: 20vw;" type="url" id="targetJitsi" />
   <br />
   <button id="start_bot_button">Start Bot.</button>
   <br />
@@ -35,6 +30,7 @@
   </div>
 </body>
 <script id="libJitsiMeet"></script>
+<script id="jitsiConfig"></script>
 <script src="defaults.js"></script>
 <script src="sharedWorker.js"></script>
 <script src="botFunctions.js"></script>

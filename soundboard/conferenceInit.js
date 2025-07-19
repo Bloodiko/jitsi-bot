@@ -472,58 +472,12 @@ function main() {
     return
   }
 
-  // get page Parameter room
-
-  const urlParams = new URLSearchParams(window.location.search)
-
-  const targetRoom = urlParams.get('room')
-
-  if (!targetRoom) {
-    log('No room Parameter, not launching bot.')
-    return
-  }
-
-  document.title = 'Soundboard - ' + targetRoom
-
-  roomName = targetRoom.replace(' ', '').toLowerCase()
+  document.title = 'Soundboard - ' + roomName
 
   conferenceInit()
 
-  log('Target: ' + targetRoom)
+  log('Target: ' + roomName)
   roomInit()
-}
-
-// Open new Tab with selected Bot as Parameter
-
-function openBot() {
-  const select = document.querySelector('#meetingSelector')
-
-  roomInput = select.value
-
-  const isValue = roomInput !== ''
-
-  const isCustom = roomInput === 'custom'
-
-  const customInput = document.querySelector('#customRoomInput').value
-
-  const getTargetRoom = (isValue, isCustom, customInput) => {
-    if (isValue) {
-      if (isCustom) {
-        return customInput
-      }
-      return roomInput
-    }
-
-    // Default case
-    return roomIDs.main
-  }
-
-  window.open(
-    location.href.split('?')[0] +
-      '?room=' +
-      getTargetRoom(isValue, isCustom, customInput),
-    '_blank'
-  )
 }
 
 document.querySelector('#start_bot_button')?.addEventListener('click', openBot)
