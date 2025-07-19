@@ -95,6 +95,7 @@ const initConfigAndLib = () => {
     } catch (error) {
       console.error('Error parsing targetJitsi URL:', error)
       log('Invalid targetJitsi URL.', LOGCLASSES.BOT_INTERNAL_LOG)
+      return
     }
     mergeConfig()
   }
