@@ -98,6 +98,10 @@ const initConfigAndLib = () => {
     }
     mergeConfig()
   }
+  else {
+    log('No targetJitsi URL provided. Please enter a conference room (including domain) in the corresponding field.')
+    return
+  }
 }
 
 initConfigAndLib()
