@@ -38,17 +38,19 @@ jitsi.html?room=jitsiroomname
 
 ## Installation
 
-To try it before cloning you can use the [Bot Selection Site](https://bloodiko.github.io/jitsi-bot/jitsi-bot/jitsi.html) ← Click to try it out
+To try it before cloning. You can use the [Bot Selection Site](https://bloodiko.github.io/jitsi-bot/jitsi-bot/jitsi.html) ← Click to try it out
 
 1. Download Repository
 2. Run a static webserver (e.g. `python3 -m http.server 8080`) or just run the
    `jitsi.html` file
-3. Open `http://localhost:8080/jitsi.html?room=jitsiroomname` in your browser
-4. Enter your the Roomname and select "custom" in the dropdown
+3. Open `http://localhost:8080/jitsi.html` in your browser
+4. Enter your the conference URL in the input field. This bot will open in a new Tab. 
 
 ## Usage
 
 **Important**: On the Public meet.jit.si Server you need to open the Room first manually.
+Additionally, meet.jit.si has some limitations due to the sharding. Bots may disconnect. I have not yet found a solution for this.
+
 Send a Private Message to the Bot with a command.
 
 For a different Domain you need to pass additional parameters to the URL:

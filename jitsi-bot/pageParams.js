@@ -63,6 +63,7 @@ const mergeConfig = () => {
     if (options.websocket) {
       log('Using websocket for connection: ' + options.websocket)
       options.serviceUrl = `${options.websocket}${options.websocket.includes("?") ? "&" : "?"}room=${roomName}`
+      options.websocketKeepAliveUrl = `${options.websocketKeepAliveUrl}${options.websocketKeepAliveUrl.includes("?") ? "&" : "?"}room=${roomName}`
     } else if (options.bosh) {
       log('Using BOSH for connection: ' + options.bosh)
       // Build a BOSH URL that guarantees the https://<domain>/http-bind form,

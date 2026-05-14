@@ -112,6 +112,11 @@ const skipConfEvents = [
   'LOBBY_USER_JOINED',
 ]
 
+const skipConnectionEvents = [
+  'CONNECTION_ESTABLISHED',
+  'CONNECTION_FAILED',
+]
+
 const workerMessages = {
   ADD_BOT: 'addBot',
   REMOVE_BOT: 'removeBot',

@@ -6,6 +6,19 @@ function tryReconnect() {
   roomInit()
 }
 
+// other events - generic handler
+const otherEventHandler = (event, arg1, arg2, arg3) => {
+  return
+  // enable only for debug purposes
+  console.log(
+    `Event catched - ${event}: \nArgs: ${arg1} ${arg2} ${arg3}`
+  )
+  console.log(arg1)
+  console.log(arg2)
+  console.log(arg3)
+  console.log('Event Args end.')
+}
+
 function conferenceInit() {
   con = new JitsiMeetJS.JitsiConnection(null, null, options)
 
@@ -13,7 +26,8 @@ function conferenceInit() {
     console.log('Connection Success')
     connectionEstablished = true
   }
-  const onConnectionFailed = (ev) => {
+  const onConnectionFailed = (param1, param2, param3, param4, param5) => {
+    console.error('Connection Failed', param1, param2, param3, param4, param5)
     log('Connection Failed')
     log(
       'Conference crashed, got system Terminated, or your internet is gone. \n Trying Reconnect in 5 minutes.'
@@ -54,6 +68,32 @@ function conferenceInit() {
     disconnect
   )
 
+  Object.entries(JitsiMeetJS.events.connection).forEach(([eventKey, eventValue]) => {
+    if (skipConnectionEvents.includes(eventKey)) {
+      console.log(`Skipping event ${eventKey}.`)
+      return
+    }
+    console.log('Adding Event Handler for Event: ', eventKey)
+    con.addEventListener(eventValue, (arg1, arg2, arg3) => {
+      otherEventHandler(eventKey, arg1, arg2, arg3)
+    })
+  })
+
+  Object.entries(JitsiMeetJS.errors.connection.JitsiConnectionErrors).forEach(([eventKey, eventValue]) => {
+    console.log('Adding Event Handler for Connection Error: ', eventKey)
+    con.addEventListener(eventValue, (arg1, arg2, arg3) => {
+      otherEventHandler(`ERROR_${eventKey}`, arg1, arg2, arg3)
+    })
+  })
+
+  con.xmpp.addEventListener("CONN_SHARD_CHANGED", (event) => {
+    log(`Connection shard changed: ${event}`)
+  })
+
+  con.xmpp.connection.addEventListener("CONN_SHARD_CHANGED", (event) => {
+    log(`Connection shard changed: ${event}`)
+  })
+
   con.connect()
 }
 
@@ -71,7 +111,7 @@ function roomInit() {
 
     postMessageToWorker(workerMessages.ADD_BOT, { roomName })
 
-    if ( !typeof ws == 'undefined' && ws.readyState === ws.OPEN) {
+    if (!typeof ws == 'undefined' && ws.readyState === ws.OPEN) {
       ws.send(
         JSON.stringify({
           type: wsMessages.ROOM_JOIN,
@@ -92,11 +132,15 @@ function roomInit() {
   )
 
   room.on(JitsiMeetJS.events.conference.CONFERENCE_LEFT, cleanupOnRoomLeft)
-  room.on(JitsiMeetJS.events.conference.CONFERENCE_FAILED, () => {
-    log(`Conference Terminated by a Moderator`)
-    cleanupOnRoomLeft()
-    reloadBot('system')
-  })
+  room.on(
+    JitsiMeetJS.events.conference.CONFERENCE_FAILED,
+    (param1, param2, param3, param4, param5) => {
+      console.error('Conference Failed', param1, param2, param3, param4, param5)
+      log(`Conference Terminated by a Moderator`)
+      cleanupOnRoomLeft()
+      reloadBot('system')
+    }
+  )
   room.on(JitsiMeetJS.events.conference.KICKED, (kickedByUser, message) => {
     log(
       `\tI got kicked by ${kickedByUser._displayName}. \n\tReason: ${message}`,
@@ -288,10 +332,6 @@ function roomInit() {
     printParticipants()
     console.log(userId, ' Role Change: ', role)
     if (userId === room.myUserId() && role === 'moderator') {
-      if (room.getParticipants().length > 0) {
-        //if nobody in room, i'm the first one, so system is granting moderator.
-        room.sendMessage('Thank you for granting me Moderator')
-      }
       console.log('Setting Start muted Policy.')
       room.setStartMutedPolicy({ audio: true, video: true })
 
@@ -337,29 +377,21 @@ function roomInit() {
     }
   )
 
-  // other events
-  const handler = (event, arg1, arg2, arg3) => {
-    return
-    // enable only for debug purposes
-    console.log(
-      `Conference Event catched - ${event}: \nArgs: ${arg1} ${arg2} ${arg3}`
-    )
-    console.log(arg1)
-    console.log(arg2)
-    console.log(arg3)
-    console.log('Conference Event Args end.')
-  }
-
-  const confEvents = { ...JitsiMeetJS.events.conference }
-
-  Object.entries(confEvents).forEach(([eventKey, eventValue]) => {
+  Object.entries(JitsiMeetJS.events.conference).forEach(([eventKey, eventValue]) => {
     if (skipConfEvents.includes(eventKey)) {
       console.log(`Skipping event ${eventKey}.`)
       return
     }
     console.log('Adding Event Handler for Event: ', eventKey)
     room.on(eventValue, (arg1, arg2, arg3) => {
-      handler(eventKey, arg1, arg2, arg3)
+      otherEventHandler(eventKey, arg1, arg2, arg3)
+    })
+  })
+
+  Object.entries(JitsiMeetJS.errors.conference.JitsiConferenceErrors).forEach(([eventKey, eventValue]) => {
+    console.log('Adding Event Handler for Conference Error: ', eventKey)
+    room.on(eventValue, (arg1, arg2, arg3) => {
+      otherEventHandler(`ERROR_${eventKey}`, arg1, arg2, arg3)
     })
   })
 
@@ -369,7 +401,7 @@ function roomInit() {
 
   setTimeout(() => {
     if (!room.isModerator()) {
-      log("currently disabled automatic Moderator request.")
+      log('currently disabled automatic Moderator request.')
       //room.sendMessage('Please grant me Moderator to allow me to work.')
     }
   }, 2000)
