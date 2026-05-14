@@ -142,6 +142,10 @@ const loadTrack = (userId, url) => {
 }
 
 const play = () => {
+  if(localTracks.audio[0].isMuted()) {
+    log('Unmuting local audio track to play soundboard track.', LOGCLASSES.BOT_INTERNAL_LOG)
+    localTracks.audio[0].unmute()
+  }
   soundboard.play()
 }
 
@@ -192,6 +196,13 @@ const togglePlayOnJoin = (userId) => {
   }
 }
 
+const unmute = (userId) => {
+  if (localTracks.audio[0].isMuted()) {
+    localTracks.audio[0].unmute()
+    room.sendMessage(`Soundboard unmuted.`, userId)
+  }
+}
+
 const help = (userId) => {
   const commands = [
     'Available Commands:',
@@ -203,6 +214,7 @@ const help = (userId) => {
     '/playVideo',
     '/reload',
     '/toggleLoop',
+    '/unmute',
     '/vol+',
     '/vol-',
     '/setVol x # x: vol between 0 .. 100',
@@ -228,6 +240,7 @@ const commandHandler = {
   '/reload': reloadBot,
   '/toggleLoop': toggleLoop,
   '/togglePlayOnJoin': togglePlayOnJoin,
+  '/unmute': unmute,
   '/vol+': increaseVol,
   '/vol-': reduceVol,
   '/setVol': setVol,
@@ -432,7 +445,7 @@ function roomInit() {
   )
 
   room.on(JitsiMeetJS.events.conference.TRACK_MUTE_CHANGED, (track) => {
-    console.log(`${track}: ${track.getType()} - set to ${track.isMuted()}`)
+    console.log(`${track}: ${track.getType()} - isMuted set to ${track.isMuted()}`)
   })
   room.on(
     JitsiMeetJS.events.conference.DISPLAY_NAME_CHANGED,
