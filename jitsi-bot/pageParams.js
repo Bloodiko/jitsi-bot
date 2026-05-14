@@ -60,9 +60,35 @@ const mergeConfig = () => {
       ...options,
     }
 
-    if (options.bosh) {
-      options.serviceUrl = `https://${options.bosh}/http-bind?room=${roomName}`
-    } 
+    if (options.websocket) {
+      log('Using websocket for connection: ' + options.websocket)
+      options.serviceUrl = `${options.websocket}${options.websocket.includes("?") ? "&" : "?"}room=${roomName}`
+    } else if (options.bosh) {
+      log('Using BOSH for connection: ' + options.bosh)
+      // Build a BOSH URL that guarantees the https://<domain>/http-bind form,
+      // preserves any existing query parameters, and always appends the room.
+      options.serviceUrl = (function (bosh) {
+        // Ensure a scheme so URL parsing works
+        let candidate = bosh
+        if (!/^https?:\/\//i.test(candidate)) {
+          candidate = 'https://' + candidate.replace(/^\/+/, '')
+        }
+        try {
+          const u = new URL(candidate)
+          // Ensure path ends with http-bind
+          if (!u.pathname.endsWith('http-bind')) {
+            u.pathname = u.pathname.replace(/\/+$/,'') + '/http-bind'
+          }
+          u.searchParams.set('room', roomName)
+          return u.toString()
+        } catch (e) {
+          // Fallback: manually assemble
+          let base = candidate.replace(/\/+$/,'')
+          if (!base.endsWith('http-bind')) base = base + '/http-bind'
+          return base + (base.includes('?') ? '&' : '?') + 'room=' + encodeURIComponent(roomName)
+        }
+      })(options.bosh)
+    }
     // mount libJitsiMeet
     log('Mounting libJitsiMeet from ' + libJitsiMeetSrc)
     document.querySelector('#libJitsiMeet').src = libJitsiMeetSrc
