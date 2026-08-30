@@ -346,7 +346,7 @@ const identifyNumber = (userId, argument) => {
 
 const about = (userId, argument) => {
   room.sendMessage(
-    `Created by Bloodiko\nGithub: https://github.com/bloodiko/jitsi-bot\n`,
+    `Created by codikyo\nGithub: https://github.com/codikyo/jitsi-bot\n`,
     userId
   )
 }

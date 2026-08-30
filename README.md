@@ -10,7 +10,7 @@ Repository contains
 
 ### Run the Bot Online here:
 
-[Bot Selection Site](https://bloodiko.github.io/jitsi-bot/jitsi-bot/jitsi.html) ← Click to try it out
+[Bot Selection Site](https://codikyo.github.io/jitsi-bot/jitsi-bot/jitsi.html) ← Click to try it out
 
 jitsi.html?room=jitsiroomname
 
@@ -38,7 +38,7 @@ jitsi.html?room=jitsiroomname
 
 ## Installation
 
-To try it before cloning. You can use the [Bot Selection Site](https://bloodiko.github.io/jitsi-bot/jitsi-bot/jitsi.html) ← Click to try it out
+To try it before cloning. You can use the [Bot Selection Site](https://codikyo.github.io/jitsi-bot/jitsi-bot/jitsi.html) ← Click to try it out
 
 1. Download Repository
 2. Run a static webserver (e.g. `python3 -m http.server 8080`) or just run the
